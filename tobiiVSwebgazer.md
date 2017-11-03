@@ -1,17 +1,6 @@
-# Thesis - *eye tracking for improving online reading* 
+# tobii vs webgazer
 
-**general overview:** [link to thesis proposal](insert link)
-
-**recent updates** see [issues](https://github.com/ahsanazim/thesis/issues)
-
-**file structure notes:**
-
-- `tobii` - where I use sample code from tobii; pretty much the extent of what's out there w.r.t. their new Core SDK. Runnign this requires C# etc. 
-
-- `webgazer` - where I use the webcam-based WebGazer eye tracking library; directory contains the source file as well as a demo i've made where you can see it's accuracy while reading an article. Simply go to the directory and run `python -m SimpleHTTPServer 8000` then go to `http://localhost:8000/` in your browser and you can check it out.
-
-
-**tobii vs webgazer**
+Historical from when there was a (small) possibility of using webgazer instead of tobii due to the - now unfounded - fear of tobii being too hard to make work.
 
 *TL;DR*
 

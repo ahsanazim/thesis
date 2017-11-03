@@ -1,7 +1,12 @@
-﻿using System;
+﻿
+using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using Tobii.Interaction;
+
+using Tobii.Interaction.Framework;
+using WebSocketSharp;
+using WebSocketSharp.Server;
 
 namespace Interaction_Interactors_101
 {
@@ -23,8 +28,79 @@ namespace Interaction_Interactors_101
     /// </summary>
     public class Program
     {
+        public class Laputa : WebSocketBehavior
+        {
+            protected override void OnMessage(MessageEventArgs e)
+            {
+                var msg = e.Data == "BALUS"
+                          ? "I've been balused already..."
+                          : "I'm not available now.";
+
+                Send(msg);
+            }
+
+            protected override void OnOpen()
+            {
+                PrintSampleIntroText();
+
+                // Everything starts with initializing Host, which manages the connection to the 
+                // Tobii Engine and provides all the Tobii Core SDK functionality.
+                // NOTE: Make sure that Tobii.EyeX.exe is running
+                var host = new Host();
+             
+                // Initialize Fixation data stream.
+                var fixationDataStream = host.Streams.CreateFixationDataStream();
+
+                // Because timestamp of fixation events is relative to the previous ones
+                // only, we will store them in this variable.
+                var fixationBeginTime = 0d;
+
+                fixationDataStream.Next += (o, fixation) =>
+                {
+                    // On the Next event, data comes as FixationData objects, wrapped in a StreamData<T> object.
+                    var fixationPointX = fixation.Data.X;
+                    var fixationPointY = fixation.Data.Y;
+
+                    switch (fixation.Data.EventType)
+                    {
+                        case FixationDataEventType.Begin:
+                            fixationBeginTime = fixation.Data.Timestamp;
+                            string beginString = string.Format("Begin fixation at X: {0}, Y: {1}", fixationPointX, fixationPointY);
+                            Send(beginString);
+                            break;
+
+                        case FixationDataEventType.Data:
+                            string duringString = string.Format("During fixation, currently at X: {0}, Y: {1}", fixationPointX, fixationPointY);
+                            Send(duringString);
+                            break;
+
+                        case FixationDataEventType.End:
+                            string endString = string.Format("End fixation at X: {0}, Y: {1}", fixationPointX, fixationPointY);
+                            Send(endString);
+                            string fixString = string.Format("Fixation duration: {0}",
+                                fixationBeginTime > 0
+                                    ? TimeSpan.FromMilliseconds(fixation.Data.Timestamp - fixationBeginTime)
+                                    : TimeSpan.Zero);
+                            Send(fixString);
+                            break;
+
+                        default:
+                            throw new InvalidOperationException("Unknown fixation event type, which doesn't have explicit handling.");
+                    }
+                };
+
+            }
+        }
+
         public static void Main(string[] args)
         {
+            var wssv = new WebSocketServer("ws://localhost:9998");
+            wssv.AddWebSocketService<Laputa>("/Laputa");
+            wssv.Start();
+            Console.ReadKey(true);
+            wssv.Stop();
+
+            /*
             // Everything starts with initializing Host, which manages the connection to the 
             // Tobii Engine and provides all the Tobii Core SDK functionality.
             // NOTE: Make sure that Tobii.EyeX.exe is running
@@ -51,11 +127,12 @@ namespace Interaction_Interactors_101
 
             // we will close the coonection to the Tobii Engine before exit.
             host.DisableConnection();
-        }
+            */
+            }
 
-        #region Helpers 
+            #region Helpers 
 
-        private static void PrintSampleIntroText()
+            private static void PrintSampleIntroText()
         {
             Console.Clear();
             Console.WriteLine("============================================================");
