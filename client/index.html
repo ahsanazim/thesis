@@ -1,8 +1,41 @@
 <!DOCTYPE HTML>
 <html>
    <head>
-	
+	   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
       <script type="text/javascript">
+
+         // from https://stackoverflow.com/questions/25529936/how-to-highlight-a-word-given-coordinates
+         $.fn.extend({
+             // this function recursively tokenizes all text nodes in an element
+             tokenize: function (wrapIn) {
+                 return this.not(".tokenized").each(function () {
+                     $(this).addClass("tokenized").children().tokenize(wrapIn);
+                     $(this).contents().each(function () {
+                         var node = this,
+                             parent = this.parentNode,
+                             tokens, tokenCount;
+
+                         // text node: tokenize, dissolve into elements, remove original text node
+                         if (node.nodeType === 3) {
+                             tokens = $(node).text().replace(/\s+/g, " ").split(" ");
+                             tokenCount = tokens.length;
+                             $.each(tokens, function (i, token) {
+                                 if (token > "") {
+                                     parent.insertBefore($(wrapIn).text(token)[0], node);
+                                 }
+                                 if (i < tokenCount - 1) {
+                                     parent.insertBefore(document.createTextNode(" "), node);
+                                 }
+                             });
+                             parent.removeChild(node);
+                         }
+                     });
+               });
+             }
+         });                     
+
+          
+
          function WebSocketTest()
          {
             if ("WebSocket" in window)
@@ -17,14 +50,33 @@
                   // Web Socket is connected, send data using send()
                   ws.send("Message to send");
                   alert("Message is sent...");
+
+                  $("p").tokenize("<span class='token'>");
                };
 				
                ws.onmessage = function (evt) 
                { 
                   var received_msg = evt.data;
-                  var greeting = "Message is received: ";
-                  //alert(greeting.concat(received_msg));
                   console.log(received_msg);
+
+                  var tokens = received_msg.split('|');
+
+                  if (tokens[0] === 'during') {
+                     var tobii_x = tokens[1];
+                     var tobii_y = tokens[2];
+                     var x = tobii_x + window.screenLeft + (window.outerWidth - window.innerWidth);
+                     var y = tobii_y + window.screenTop + (window.outerHeight - window.innerHeight);
+
+                  $(function () {
+                     $("span.token").filter(function () {
+                        var $this = $(this), pos = $this.position();
+                        if(y >= pos.top && y <= pos.top + $this.height() && x >= pos.left && x <= pos.left + $this.width()) {
+                           $(this).css('color', 'red');
+                        }
+                     })  
+                  });              
+
+                  }
                };
 				
                ws.onclose = function()
@@ -52,6 +104,13 @@
       <div id="sse">
          <a href="javascript:WebSocketTest()">Run WebSocket</a>
       </div>
-      
+      <div id="sampleText">
+         <p>Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit amet quam egestas semper. Aenean ultricies mi vitae est. Mauris placerat eleifend leo. Quisque sit amet est et sapien ullamcorper pharetra. Vestibulum erat wisi, condimentum sed, commodo vitae, ornare sit amet, wisi. Aenean fermentum, elit eget tincidunt condimentum, eros ipsum rutrum orci, sagittis tempus lacus enim ac dui. Donec non enim in turpis pulvinar facilisis. Ut felis. Praesent dapibus, neque id cursus faucibus, tortor neque egestas augue, eu vulputate magna eros eu erat. Aliquam erat volutpat. Nam dui mi, tincidunt quis, accumsan porttitor, facilisis luctus, metus</p>
+         <p>Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit amet quam egestas semper. Aenean ultricies mi vitae est. Mauris placerat eleifend leo. Quisque sit amet est et sapien ullamcorper pharetra. Vestibulum erat wisi, condimentum sed, commodo vitae, ornare sit amet, wisi. Aenean fermentum, elit eget tincidunt condimentum, eros ipsum rutrum orci, sagittis tempus lacus enim ac dui. Donec non enim in turpis pulvinar facilisis. Ut felis. Praesent dapibus, neque id cursus faucibus, tortor neque egestas augue, eu vulputate magna eros eu erat. Aliquam erat volutpat. Nam dui mi, tincidunt quis, accumsan porttitor, facilisis luctus, metus</p>
+         <p>Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit amet quam egestas semper. Aenean ultricies mi vitae est. Mauris placerat eleifend leo. Quisque sit amet est et sapien ullamcorper pharetra. Vestibulum erat wisi, condimentum sed, commodo vitae, ornare sit amet, wisi. Aenean fermentum, elit eget tincidunt condimentum, eros ipsum rutrum orci, sagittis tempus lacus enim ac dui. Donec non enim in turpis pulvinar facilisis. Ut felis. Praesent dapibus, neque id cursus faucibus, tortor neque egestas augue, eu vulputate magna eros eu erat. Aliquam erat volutpat. Nam dui mi, tincidunt quis, accumsan porttitor, facilisis luctus, metus</p>
+         <p>Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit amet quam egestas semper. Aenean ultricies mi vitae est. Mauris placerat eleifend leo. Quisque sit amet est et sapien ullamcorper pharetra. Vestibulum erat wisi, condimentum sed, commodo vitae, ornare sit amet, wisi. Aenean fermentum, elit eget tincidunt condimentum, eros ipsum rutrum orci, sagittis tempus lacus enim ac dui. Donec non enim in turpis pulvinar facilisis. Ut felis. Praesent dapibus, neque id cursus faucibus, tortor neque egestas augue, eu vulputate magna eros eu erat. Aliquam erat volutpat. Nam dui mi, tincidunt quis, accumsan porttitor, facilisis luctus, metus</p>
+         <p>Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit amet quam egestas semper. Aenean ultricies mi vitae est. Mauris placerat eleifend leo. Quisque sit amet est et sapien ullamcorper pharetra. Vestibulum erat wisi, condimentum sed, commodo vitae, ornare sit amet, wisi. Aenean fermentum, elit eget tincidunt condimentum, eros ipsum rutrum orci, sagittis tempus lacus enim ac dui. Donec non enim in turpis pulvinar facilisis. Ut felis. Praesent dapibus, neque id cursus faucibus, tortor neque egestas augue, eu vulputate magna eros eu erat. Aliquam erat volutpat. Nam dui mi, tincidunt quis, accumsan porttitor, facilisis luctus, metus</p>
+         <p>Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit amet quam egestas semper. Aenean ultricies mi vitae est. Mauris placerat eleifend leo. Quisque sit amet est et sapien ullamcorper pharetra. Vestibulum erat wisi, condimentum sed, commodo vitae, ornare sit amet, wisi. Aenean fermentum, elit eget tincidunt condimentum, eros ipsum rutrum orci, sagittis tempus lacus enim ac dui. Donec non enim in turpis pulvinar facilisis. Ut felis. Praesent dapibus, neque id cursus faucibus, tortor neque egestas augue, eu vulputate magna eros eu erat. Aliquam erat volutpat. Nam dui mi, tincidunt quis, accumsan porttitor, facilisis luctus, metus</p>
+      </div>
    </body>
 </html>

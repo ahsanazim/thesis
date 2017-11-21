@@ -65,19 +65,19 @@ namespace Interaction_Interactors_101
                     {
                         case FixationDataEventType.Begin:
                             fixationBeginTime = fixation.Data.Timestamp;
-                            string beginString = string.Format("Begin fixation at X: {0}, Y: {1}", fixationPointX, fixationPointY);
+                            string beginString = string.Format("begin|{0}|{1}", fixationPointX, fixationPointY);
                             Send(beginString);
                             break;
 
                         case FixationDataEventType.Data:
-                            string duringString = string.Format("During fixation, currently at X: {0}, Y: {1}", fixationPointX, fixationPointY);
+                            string duringString = string.Format("during|{0}|{1}", fixationPointX, fixationPointY);
                             Send(duringString);
                             break;
 
                         case FixationDataEventType.End:
-                            string endString = string.Format("End fixation at X: {0}, Y: {1}", fixationPointX, fixationPointY);
+                            string endString = string.Format("end|{0}|{1}", fixationPointX, fixationPointY);
                             Send(endString);
-                            string fixString = string.Format("Fixation duration: {0}",
+                            string fixString = string.Format("duration|{0}|null",
                                 fixationBeginTime > 0
                                     ? TimeSpan.FromMilliseconds(fixation.Data.Timestamp - fixationBeginTime)
                                     : TimeSpan.Zero);
