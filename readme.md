@@ -4,6 +4,15 @@
 
 **recent updates** see [issues](https://github.com/ahsanazim/thesis/issues)
 
+**How to run:**
+
+- start up tobii eye tracking desktop app / make sure it's even working
+- open up `tobii/Interactors/Interaction_Interactors_101` in IDE and run
+	- terminal window should open, functions as console/app for this program
+- double click `client/index.html` to run it
+- browser should open up, everything self-evident from there (i.e. click `Run Websocket` link and proceed)
+	- note that you can uncomment specific portions of `index.html` to explore various functionalities (see code)
+
 **file structure notes:**
 
 - `tobii` (i.e. server) - main code containing our websocket server that uses the Tobii core SDK to constantly get gaze information. Sends this on to client

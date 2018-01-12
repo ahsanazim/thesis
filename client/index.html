@@ -57,25 +57,43 @@
                ws.onmessage = function (evt) 
                { 
                   var received_msg = evt.data;
-                  console.log(received_msg);
+                  console.log(received_msg);          // uncomment to log all coordinates
 
                   var tokens = received_msg.split('|');
 
                   if (tokens[0] === 'during') {
+
+                     // get normalized gaze position
                      var tobii_x = tokens[1];
                      var tobii_y = tokens[2];
                      var x = tobii_x + window.screenLeft + (window.outerWidth - window.innerWidth);
                      var y = tobii_y + window.screenTop + (window.outerHeight - window.innerHeight);
 
-                  $(function () {
-                     $("span.token").filter(function () {
-                        var $this = $(this), pos = $this.position();
-                        if(y >= pos.top && y <= pos.top + $this.height() && x >= pos.left && x <= pos.left + $this.width()) {
-                           $(this).css('color', 'red');
-                        }
-                     })  
-                  });              
 
+                     // draw dot at current gaze position
+                     var dot_color = 'green';
+                     var dot_size = '5px';
+                     $("body").append(
+                        $('<div></div>')
+                           .css('position', 'absolute')
+                           .css('top', y + 'px')
+                           .css('left', x + 'px')
+                           .css('width', dot_size)
+                           .css('height', dot_size)
+                           .css('background-color', dot_color)
+                     );
+
+                     // highlight word at current gaze position
+                     // NOTE: comment this out, and the above dot-drawing will be *much* faster
+                     // clearly, this is the function that slows everything down
+                     $(function () {
+                        $("span.token").filter(function () {
+                           var $this = $(this), pos = $this.position();
+                           if(y >= pos.top && y <= pos.top + $this.height() && x >= pos.left && x <= pos.left + $this.width()) {
+                              $(this).css('color', 'red');
+                           }
+                        })  
+                     });         
                   }
                };
 				
