@@ -4,116 +4,141 @@
 	   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
       <script type="text/javascript">
 
-         // from https://stackoverflow.com/questions/25529936/how-to-highlight-a-word-given-coordinates
-         $.fn.extend({
-             // this function recursively tokenizes all text nodes in an element
-             tokenize: function (wrapIn) {
-                 return this.not(".tokenized").each(function () {
-                     $(this).addClass("tokenized").children().tokenize(wrapIn);
-                     $(this).contents().each(function () {
-                         var node = this,
-                             parent = this.parentNode,
-                             tokens, tokenCount;
+        var spanInfoArr = []; // populated with objects in `tokenize` function below
+                              // has positional info on all spans; hence no need to recompute
 
-                         // text node: tokenize, dissolve into elements, remove original text node
-                         if (node.nodeType === 3) {
-                             tokens = $(node).text().replace(/\s+/g, " ").split(" ");
-                             tokenCount = tokens.length;
-                             $.each(tokens, function (i, token) {
-                                 if (token > "") {
-                                     parent.insertBefore($(wrapIn).text(token)[0], node);
-                                 }
-                                 if (i < tokenCount - 1) {
-                                     parent.insertBefore(document.createTextNode(" "), node);
-                                 }
-                             });
-                             parent.removeChild(node);
-                         }
-                     });
-               });
-             }
-         });                     
+        // from https://stackoverflow.com/questions/25529936/how-to-highlight-a-word-given-coordinates
+        $.fn.extend({
+          // this function recursively tokenizes all text nodes in an element
+          tokenize: function (currId) {
+            return this.not(".tokenized").each(function () {
+              $(this).addClass("tokenized").children().tokenize(currId);
+              $(this).contents().each(function () {
+                var node = this,
+                  parent = this.parentNode,
+                  tokens, tokenCount;
+
+                // text node: tokenize, dissolve into elements, remove original text node
+                if (node.nodeType === 3) {
+                  tokens = $(node).text().replace(/\s+/g, " ").split(" ");
+                  tokenCount = tokens.length;
+                  $.each(tokens, function (i, token) {
+                    if (token > "") {
+                      currId += 1         // each span token will have unique id
+                      var tokId = "tok_" + currId.toString();
+                      var wrapIn = "<span class='token' id='" + tokId + "'>";
+                      parent.insertBefore($(wrapIn).text(token)[0], node);
+
+                      // create object with just created span's relevant positional info
+                      // add to global array
+                      var spanInfoObj = {
+                        id: tokId,
+                        height: $("#" + tokId).height(),
+                        pos: $("#" + tokId).position(),
+                        width: $("#" + tokId).width()
+                      };
+                      spanInfoArr.push(spanInfoObj);
+                    }
+                    if (i < tokenCount - 1) {
+                      parent.insertBefore(document.createTextNode(" "), node);
+                    }
+                  });
+                  parent.removeChild(node);
+                }
+              });
+            });
+          }
+        });                     
 
           
 
-         function WebSocketTest()
-         {
-            if ("WebSocket" in window)
-            {
-               alert("WebSocket is supported by your Browser!");
-               
-               // Let us open a web socket
-               var ws = new WebSocket("ws://localhost:9998/Laputa");
-				
-               ws.onopen = function()
-               {
-                  // Web Socket is connected, send data using send()
-                  ws.send("Message to send");
-                  alert("Message is sent...");
+        function WebSocketTest()
+        {
+          if ("WebSocket" in window)
+          {
+             alert("WebSocket is supported by your Browser!");
+             
+             // Let us open a web socket
+             var ws = new WebSocket("ws://localhost:9998/Laputa");
 
-                  $("p").tokenize("<span class='token'>");
-               };
-				
-               ws.onmessage = function (evt) 
-               { 
-                  var received_msg = evt.data;
-                  console.log(received_msg);          // uncomment to log all coordinates
+             ws.onopen = function()
+             {
+                // Web Socket is connected, send data using send()
+                ws.send("Message to send");
+                alert("Message is sent...");
 
-                  var tokens = received_msg.split('|');
+                $("p").tokenize(0);
+             };
 
-                  if (tokens[0] === 'during') {
+             ws.onmessage = function (evt) 
+             { 
+                var received_msg = evt.data;
+                console.log(received_msg);          // uncomment to log all coordinates
 
-                     // get normalized gaze position
-                     var tobii_x = tokens[1];
-                     var tobii_y = tokens[2];
-                     var x = tobii_x + window.screenLeft + (window.outerWidth - window.innerWidth);
-                     var y = tobii_y + window.screenTop + (window.outerHeight - window.innerHeight);
+                var tokens = received_msg.split('|');
+
+                if (tokens[0] === 'during') {
+
+                   // get normalized gaze position
+                   var tobii_x = tokens[1];
+                   var tobii_y = tokens[2];
+                   var x = tobii_x + window.screenLeft + (window.outerWidth - window.innerWidth);
+                   var y = tobii_y + window.screenTop + (window.outerHeight - window.innerHeight);
 
 
-                     // draw dot at current gaze position
-                     var dot_color = 'green';
-                     var dot_size = '5px';
-                     $("body").append(
-                        $('<div></div>')
-                           .css('position', 'absolute')
-                           .css('top', y + 'px')
-                           .css('left', x + 'px')
-                           .css('width', dot_size)
-                           .css('height', dot_size)
-                           .css('background-color', dot_color)
-                     );
+                   // draw dot at current gaze position
+                   var dot_color = 'green';
+                   var dot_size = '5px';
+                   $("body").append(
+                      $('<div></div>')
+                         .css('position', 'absolute')
+                         .css('top', y + 'px')
+                         .css('left', x + 'px')
+                         .css('width', dot_size)
+                         .css('height', dot_size)
+                         .css('background-color', dot_color)
+                   );
 
-                     // highlight word at current gaze position
-                     // NOTE: comment this out, and the above dot-drawing will be *much* faster
-                     // clearly, this is the function that slows everything down
-                     $(function () {
-                        $("span.token").filter(function () {
-                           var $this = $(this), pos = $this.position();
-                           if(y >= pos.top && y <= pos.top + $this.height() && x >= pos.left && x <= pos.left + $this.width()) {
-                              $(this).css('color', 'red');
-                           }
-                        })  
-                     });         
-                  }
-               };
-				
-               ws.onclose = function()
-               { 
-                  // websocket is closed.
-                  alert("Connection is closed..."); 
-               };
-					
-               window.onbeforeunload = function(event) {
-                  socket.close();
-               };
-            }
-            
-            else
-            {
-               // The browser doesn't support WebSocket
-               alert("WebSocket NOT supported by your Browser!");
-            }
-         }
+                   // highlight word at current gaze position
+                   // NOTE: comment this out, and the above dot-drawing will be *much* faster
+                   // clearly, this is the function that slows everything down
+                   $(function () {
+                      // iterate through array of span objects and find id of span that matches condition
+                      // then change color of span with said id
+                      spanInfoArr.forEach(function(spanObj) {
+                         if(y >= spanObj.pos.top && y <= spanObj.pos.top + spanObj.height && x >= spanObj.pos.left && x <= spanObj.pos.left + spanObj.width){
+                            $("#" + spanObj.id).css('color', 'red');
+                         }                        
+                      });   
+                      /* old super slow way
+                      $("span.token").filter(function () {
+                         var $this = $(this), pos = $this.position();
+                         if(y >= pos.top && y <= pos.top + $this.height() && x >= pos.left && x <= pos.left + $this.width()) {
+                            $(this).css('color', 'red');
+                         }
+                      })
+                      */ 
+                   });         
+                }
+             };
+
+             ws.onclose = function()
+             { 
+                // websocket is closed.
+                alert("Connection is closed..."); 
+             };
+
+             window.onbeforeunload = function(event) {
+                socket.close();
+             };
+          }
+          
+          else
+          {
+             // The browser doesn't support WebSocket
+             alert("WebSocket NOT supported by your Browser!");
+          }
+        }
       </script>
 		
    </head>
