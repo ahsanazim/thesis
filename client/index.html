@@ -6,6 +6,8 @@
 
         var spanInfoArr = []; // populated with objects in `tokenize` function below
                               // has positional info on all spans; hence no need to recompute
+        // array of arrays with last 10 x,y positions of gaze tracker
+        var coords_q = [[-1,-1],[-1,-1],[-1,-1],[-1,-1],[-1,-1],[-1,-1],[-1,-1],[-1,-1],[-1,-1],[-1,-1]];
 
         // from https://stackoverflow.com/questions/25529936/how-to-highlight-a-word-given-coordinates
         $.fn.extend({
@@ -79,46 +81,56 @@
 
                 if (tokens[0] === 'during') {
 
-                   // get normalized gaze position
-                   var tobii_x = tokens[1];
-                   var tobii_y = tokens[2];
-                   var x = tobii_x + window.screenLeft + (window.outerWidth - window.innerWidth);
-                   var y = tobii_y + window.screenTop + (window.outerHeight - window.innerHeight);
+                  // get normalized gaze position
+                  var tobii_x = tokens[1];
+                  var tobii_y = tokens[2];
+                  var x = tobii_x + window.screenLeft + (window.outerWidth - window.innerWidth);
+                  var y = tobii_y + window.screenTop + (window.outerHeight - window.innerHeight);
+
+                  // smoothing -- compute stabilized x and y coords
+                  // use coords_q as queue sliding over past 10 x,y positions
+                  // mean of these is our current position1
+                  var x_sum = 0.0;
+                  var y_sum = 0.0;
+                  var avg_denom = 0.0; // needed b/c of initial cases where coords_q not filled fully
+                  coords_q.push([x,y]);
+                  coords_q.shift();
+                  for(var i = 0; i < coords_q.length; i++) {
+                    if (coords_q[i][0] !== -1) {
+                      x_sum += parseFloat(coords_q[i][0]);
+                      y_sum += parseFloat(coords_q[i][1]);
+                      avg_denom += 1;
+                    }
+                  }
+                  x = x_sum / avg_denom;
+                  y = y_sum / avg_denom;
 
 
-                   // draw dot at current gaze position
-                   var dot_color = 'green';
-                   var dot_size = '5px';
-                   $("body").append(
-                      $('<div></div>')
-                         .css('position', 'absolute')
-                         .css('top', y + 'px')
-                         .css('left', x + 'px')
-                         .css('width', dot_size)
-                         .css('height', dot_size)
-                         .css('background-color', dot_color)
-                   );
+                  // draw dot at current gaze position    DO NOT DELETE THIS!!!! -- uncomment whenever you need tracer
+                  /*
+                  var dot_color = 'green';
+                  var dot_size = '5px';
+                  $("body").append(
+                    $('<div></div>')
+                       .css('position', 'absolute')
+                       .css('top', y + 'px')
+                       .css('left', x + 'px')
+                       .css('width', dot_size)
+                       .css('height', dot_size)
+                       .css('background-color', dot_color)
+                  );
+                  */
 
-                   // highlight word at current gaze position
-                   // NOTE: comment this out, and the above dot-drawing will be *much* faster
-                   // clearly, this is the function that slows everything down
-                   $(function () {
-                      // iterate through array of span objects and find id of span that matches condition
-                      // then change color of span with said id
-                      spanInfoArr.forEach(function(spanObj) {
-                         if(y >= spanObj.pos.top && y <= spanObj.pos.top + spanObj.height && x >= spanObj.pos.left && x <= spanObj.pos.left + spanObj.width){
-                            $("#" + spanObj.id).css('color', 'red');
-                         }                        
-                      });   
-                      /* old super slow way
-                      $("span.token").filter(function () {
-                         var $this = $(this), pos = $this.position();
-                         if(y >= pos.top && y <= pos.top + $this.height() && x >= pos.left && x <= pos.left + $this.width()) {
-                            $(this).css('color', 'red');
-                         }
-                      })
-                      */ 
-                   });         
+                  // highlight word at current gaze position
+                  $(function () {
+                    // iterate through array of span objects and find id of span that matches condition
+                    // then change color of span with said id
+                    spanInfoArr.forEach(function(spanObj) {
+                       if(y >= spanObj.pos.top && y <= spanObj.pos.top + spanObj.height && x >= spanObj.pos.left && x <= spanObj.pos.left + spanObj.width){
+                          $("#" + spanObj.id).css('color', 'red');
+                       }                        
+                    });   
+                  });         
                 }
              };
 
