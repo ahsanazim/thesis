@@ -81,15 +81,15 @@
           }
         });
 
-        /* checks the number of times `elem` is present in array `arr` */
-        function getCount(arr, elem) 
+        /* checks the number of times `check_line` is present in global arr span_line_q */
+        function getSpanLineCount(check_line) 
         {
           var count = 0;
-          for (var i = 0; i < arr.length; i++) {
-            if (arr[i] === elem) {
+          span_line_q.forEach(function(curr_line) {
+            if (curr_line.toString() === check_line.toString()) {
               count += 1;
             }
-          }
+          });
           return count;
         }
 
@@ -99,8 +99,8 @@
           var ENOUGH_COUNT = 7;
           enoughCountLineNum = "NA" // line present 3/4 times in arr ... none yet
           span_line_q.forEach(function(span_line) {
-            var count = getCount(span_line_q, span_line);
-            if (count >= ENOUGH_COUNT) {
+            var line_count = getSpanLineCount(span_line);
+            if (line_count >= ENOUGH_COUNT) {
               enoughCountLineNum = span_line.toString();
             }
           });
@@ -130,7 +130,7 @@
              ws.onmessage = function (evt) 
              { 
                 var received_msg = evt.data;
-                console.log(received_msg);          // uncomment to log all coordinates
+                // console.log(received_msg);          // uncomment to log all coordinates
 
                 var tokens = received_msg.split('|');
 
@@ -144,7 +144,7 @@
 
 
                   // fixing how y always seems 10px lower than it should be ... seems to help a bit
-                  y -= 15;
+                  y -= 40;
 
                   // smoothing -- compute stabilized x and y coords
                   // use coords_q as queue sliding over past 10 x,y positions
@@ -197,15 +197,17 @@
                           span_line_q.shift();
                           var currLineNum = getStableLineNum();
                           if (currLineNum !== "NA") {   // if it is NA then youre moving fast hence stick with previous
-                            $(".line" + currLineNum.toString()).css('color', 'blue');
+                            // $(".line" + prevLineNum.toString()).css('color', 'black'); // if you wanna do smthng with prev
+                            $(".token").css('color','grey');                             // make everything else grey
+                            $(".line" + currLineNum.toString()).css('color', 'blue');    // current line blue
                             prevLineNum = currLineNum;
                           }                            
                         }
 
 
-                          /* the raw method, follows your eyes everywhere - can do by word or line */
-                          // $(".line" + spanObj.line.toString()).css('color', 'green');
-                          // $("#" + spanObj.id).css('color', 'red');
+                        /* the raw method, follows your eyes everywhere - can do by word or line */
+                        // $(".line" + spanObj.line.toString()).css('color', 'green');
+                        //$("#" + spanObj.id).css('color', 'red');
                        }                        
                     });   
                   });         
