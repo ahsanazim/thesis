@@ -12,6 +12,7 @@
         // var linesDict = {};        /* see below - line-id dictionary of arrays */
         var prevLineNum = "1";
         var prevId = "1";
+        var counter = 3;
 
         // from https://stackoverflow.com/questions/25529936/how-to-highlight-a-word-given-coordinates
         $.fn.extend({
@@ -40,11 +41,19 @@
                         var currSpanX = $("#" + tokId).position().left;
                         var prevTokId = "tok_" + (currId - 1).toString();
                         var prevSpanX =  $("#" + prevTokId).position().left;
-                        lineNum = (currSpanX < prevSpanX) ? (lineNum + 1) : lineNum;
+                        if (currSpanX < prevSpanX) {
+                          counter -=1;
+                        }
+                        if (counter === 0) {
+                          lineNum = (currSpanX < prevSpanX) ? (lineNum + 1) : lineNum;
+                          counter = 2;
+                        }
+                        //lineNum = (currSpanX < prevSpanX) ? (lineNum + 1) : lineNum;
                         // if (currSpanX < prevSpanX) {     /* for debugging line changing problems */
                         //   console.log("SHIFT");
                         //   console.log(currSpanX);
                         //   console.log(prevSpanX);
+                        //   console.log(tokId);
                         //   console.log(prevTokId);
                         // }
                       }
@@ -113,7 +122,7 @@
         function getLineRangeArr(currLineStr)
         {
           var currLineInt = parseInt(currLineStr);
-          return Array.from(new Array(10), (x,i) => i + currLineInt-2);
+          return Array.from(new Array(3), (x,i) => i + currLineInt-1);
         }              
 
           
@@ -122,7 +131,7 @@
         {
           if ("WebSocket" in window)
           {
-             alert("WebSocket is supported by your Browser!");
+             //alert("WebSocket is supported by your Browser!");
              
              // Let us open a web socket
              var ws = new WebSocket("ws://localhost:9998/Laputa");
@@ -131,7 +140,7 @@
              {
                 // Web Socket is connected, send data using send()
                 ws.send("Message to send");
-                alert("Message is sent...");
+                //alert("Message is sent...");
 
                 $("p").tokenize(0, 1);
              };
@@ -149,11 +158,7 @@
                   var tobii_x = tokens[1];
                   var tobii_y = tokens[2];
                   var x = tobii_x + window.screenLeft + (window.outerWidth - window.innerWidth);
-                  var y = tobii_y + window.screenTop + (window.outerHeight - window.innerHeight);
-
-
-                  // fixing how y always seems 10px lower than it should be ... seems to help a bit
-                  y -= 40;
+                  var y = tobii_y + window.screenTop - (window.outerHeight - window.innerHeight);
 
                   // smoothing -- compute stabilized x and y coords
                   // use coords_q as queue sliding over past 10 x,y positions
@@ -172,9 +177,10 @@
                   }
                   x = x_sum / avg_denom;
                   y = y_sum / avg_denom;
+                  
 
                   // draw dot at current gaze position    DO NOT DELETE!!!! -- uncomment whenever you need tracer
-                  /*
+                  
                   var dot_color = 'green';
                   var dot_size = '5px';
                   $("body").append(
@@ -186,7 +192,7 @@
                        .css('height', dot_size)
                        .css('background-color', dot_color)
                   );
-                  */
+                  
 
                   // highlight word at current gaze position
                   $(function () {
@@ -213,12 +219,12 @@
                               $(".line" + rangeLineNum.toString()).css('color', 'blue');
                             });
                             prevLineNum = currLineNum;
-                          }                            
+                          }                           
                         }
 
 
                         /* the raw method, follows your eyes everywhere - can do by word or line */
-                        // $(".line" + spanObj.line.toString()).css('color', 'green');
+                        //$(".line" + spanObj.line.toString()).css('color', 'green');
                         //$("#" + spanObj.id).css('color', 'red');
                        }                        
                     });   
