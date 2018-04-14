@@ -3,7 +3,6 @@
    <head>
 	   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
       <script type="text/javascript">
-
         var spanInfoArr = []; // populated with objects in `tokenize` function below
                               // has positional info on all spans; hence no need to recompute
         // array of arrays with last 10 x,y positions of gaze tracker
@@ -177,7 +176,7 @@
                   }
                   x = x_sum / avg_denom;
                   y = y_sum / avg_denom;
-                  
+
 
                   // draw dot at current gaze position    DO NOT DELETE!!!! -- uncomment whenever you need tracer
                   
@@ -196,16 +195,42 @@
 
                   // highlight word at current gaze position
                   $(function () {
+
+
+                    /////////////////////////////////////////////////////////////////////////////////
+                    // NEW HIGHLIGHTING MECHANISM
+                    // inspired by: https://stackoverflow.com/questions/2456442/how-can-i-highlight-the-line-of-text-that-is-closest-to-the-mouse/2456631#2456631
+                    // and hence: http://jsbin.com/avuku/15/edit?html,js,output
+                    /////////////////////////////////////////////////////////////////////////////////
+
+                    var lines = document.getElementById("wrappingText").getClientRects();
+                    var highlighter = document.getElementById("highlighter");
+                    for (var i=0, max = lines.length; i < max; i++)
+                    {
+                        if (y > lines[i].top && y < lines[i].bottom)
+                        {
+                            $("#highlighter").css("height",lines[i].bottom - lines[i].top);
+                            $("#highlighter").css("top", lines[i].top);
+                            break;
+                        } 
+                    }
+                    
+                    /////////////////////////////////////////////////////////////////////////////////
+                    // ALL THE OLD CODE FOR HIGHLIGHTING AND SUCH - tokens etc. pretty useless rn
+                    // but you must integrate the important stuff into the new highlighting mechanism
+                    /////////////////////////////////////////////////////////////////////////////////
+
+                    /*
                     // iterate through array of span objects and find id of span that matches condition
                     // then change color of span with said id
                     spanInfoArr.forEach(function(spanObj) {
                        if(y >= spanObj.pos.top && y <= spanObj.pos.top + spanObj.height && x >= spanObj.pos.left && x <= spanObj.pos.left + spanObj.width){
 
 
-                        /* using best 7 of 10 method
-                          ensures that eyes wandering to random words doesnt cause immediate change of 
-                          line, you want a flow, i.e. mimicking how people actually read
-                        */
+                        // using best 7 of 10 method
+                        // ensures that eyes wandering to random words doesnt cause immediate change of 
+                        // line, you want a flow, i.e. mimicking how people actually read
+                        
                         if (spanObj.id.toString() !== prevId) {
                           prevId = spanObj.id.toString();
                           span_line_q.push(spanObj.line.toString());
@@ -223,12 +248,16 @@
                         }
 
 
-                        /* the raw method, follows your eyes everywhere - can do by word or line */
+                        // the raw method, follows your eyes everywhere - can do by word or line
                         //$(".line" + spanObj.line.toString()).css('color', 'green');
                         //$("#" + spanObj.id).css('color', 'red');
                        }                        
-                    });   
-                  });         
+                    });
+                    */  
+
+
+
+                  });       
                 }
              };
 
@@ -252,12 +281,24 @@
       </script>
 
 
-      <style>
-        p 
+      <style type="text/css">
+        div 
         {
           font-size: 16px;
           font-family: 'Georgia';
           line-height: 28px;
+        }
+        #highlighter {
+          background-color:yellow;
+          position:absolute;
+          width:100%;
+          z-index: -1;
+        }
+        #wrappingText {
+          display: inline;
+        } 
+        #container {
+
         }
       </style>
 		
@@ -267,19 +308,26 @@
       <div id="sse">
          <a href="javascript:WebSocketTest()">Run WebSocket</a>
       </div>
-      <div id="sampleText">
-        <p>Published July 13, 2016 ----- Bei Bei (bay-bWhen Bei Bei was about three months old, his eyes finally opened. Soon he was taking his first steps, losing his first tooth, and taking his first nibble of solid foods such as sweet potatoes. “Of all our cubs, he’s been the most interested in trying new foods,” panda keeper Laurie Thompson says.ay) the giant panda is now over 60 pounds—and growing! But he wasn’t always so giant. The one-year-old cub, which lives at the Smithsonian's National Zoo in Washington, D.C., was about the size of a stick of butter when he was born. Cared for by zookeepers and his mom, Mei Xiang (may-SHONG), Bei Bei has spent the last several months going through a major growth spurt.Before long the cub will stop drinking his mother’s milk and eat nothing but bamboo. But even as he grows, he’ll stay with his mom for another two years. By the time he’s four years old, Bei Bei will weigh about 250 pounds. At that point he’ll move to a panda reserve in China, where he’ll enter a breeding program to help his species survive. No wonder this panda is such a big deal! “Of all our cubs, he’s been the most interested in trying new foods,” panda keeper Laurie Thompson says.e cub will stop drinking his mother’s milk and eat nothing but bamboo. But even as he grows, he’ll stay with his mom for another two years. By the time he’s four years old, Bei Bei will weigh about 250 pounds. At that point he’ll move to a panda reserve in China, where he’ll enter a breeding program to help his species survive. No wonder this panda is such a big deal!</p>
+    
+      <div id="container">
+        <div id="highlighter"></div>
+        <div id="wrappingText">Published July 13, 2016 :::: Bei Bei (bay-bWhen Bei Bei was about three months old, his eyes finally opened. Soon he was taking his first steps, losing his first tooth, and taking his first nibble of solid foods such as sweet potatoes. “Of all our cubs, he’s been the most interested in trying new foods,” panda keeper Laurie Thompson says.ay) the giant panda is now over 60 pounds—and growing! But he wasn’t always so giant. The one-year-old cub, which lives at the Smithsonian's National Zoo in Washington, D.C., was about the size of a stick of butter when he was born. Cared for by zookeepers and his mom, Mei Xiang (may-SHONG), Bei Bei has spent the last several months going through a major growth spurt.Before long the cub will stop drinking his mother’s milk and eat nothing but bamboo. But even as he grows, he’ll stay with his mom for another two years. By the time he’s four years old, Bei Bei will weigh about 250 pounds. At that point he’ll move to a panda reserve in China, where he’ll enter a breeding program to help his species survive. No wonder this panda is such a big deal! “Of all our cubs, he’s been the most interested in trying new foods,” panda keeper Laurie Thompson says.e cub will stop drinking his mother’s milk and eat nothing but bamboo. But even as he grows, he’ll stay with his mom for another two years. By the time he’s four years old, Bei Bei will weigh about 250 pounds.</br></br>At that point he’ll move to a panda reserve in China, where he’ll enter a breeding program to help his species survive. No wonder this panda is such a big deal!.
+        At birth Bei Bei was blind, furless, and weighed less than a third of a pound. Within 48 hours, white fur began to grow on partsWhen Bei Bei was about three months old, his eyes finally opened. Soon he was taking his first steps, losing his first tooth, and taking his first nibble of solid foods such as sweet potatoes. “Of all our cubs, he’s been the most interested in trying new foods,” panda keeper Laurie Thompson says.When Bei Bei was about three months old, his eyes finally opened. Soon he was taking his first steps, losing his first tooth, and taking his first nibble of solid foods such as sweet potatoes. “Of all our cubs, he’s been the most interested in trying new foods,” panda keeper Laurie Thompson says.Bei Bei is now in basic training, learning to come when keepers call to him. Next he’ll master standing, lying down, presenting his paws, and opening his mouth on command—all actions that will make it easier for veterinarians and zookeepers to give Bei Bei checkups. Before long When Bei Bei was about three months old, his eyes finally opened. Soon he was taking his first steps, losing his first tooth, and taking his first nibble of solid foods such as sweet potatoes. “Of all our cubs, he’s been the most interested in trying new foods,” panda keeper Laurie Thompson says.e cub will stop drinking his mother’s milk and eat nothing but bamboo. But even as he grows, he’ll stay with his mom for another two years. By the time he’s four years old, Bei Bei will weigh about 250 pounds. At that point he’ll move to a panda reserve in China of his wrinkly skin. Two weeks later, dark fur started cover the rest of his body. Up until then, Bei Bei’s mom had been cuddling with the infant almost nonstop to keep him toasty. But Bei Bei’s new coat kept him warm enough to allow Mei When Bei Bei was about three months old, his eyes finally opened. Soon he was taking his first steps, losing his first tooth, and taking his first nibble of solid foods such as sweet potatoes.</br></br>“Of When Bei Bei was about three months old, his eyes finally opened. Soon he was taking his first steps, losing his first tooth, and taking his first nibble of solid foods such as sweet potatoes. “Of all our cubs, he’s been the most interested in trying new foods,” panda keeper Laurie Thompson says.all our cubs, he’s been the most interested in trying new foods,” panda keeper Laurie Thompson says.Xhang to slip out of her den for food breaks. Mei Xhang was never gone for long though. Whenever Bei Bei called out, she quickly returned to nuzzle or nurse the infant. When Bei Bei was about three months old, his eyes finally opened. Soon he was taking his first steps, losing his first tooth, and taking his first nibble of solid foods such as sweet potatoes. “Of all our cubs, he’s been the most interested in trying new foods,” panda keeper Laurie Thompson says. Bei Bei is now in basic training, learning to come when keepers call to him. Next he’ll master standing, lying down, presenting his paws, and opening his mouth on command—all actions that will make it easier for veterinarians and zookeepers to give Bei Bei checkups. Before long When Bei Bei was about three months old, his eyes finally opened. Soon he was taking his first steps, losing his first tooth, and taking his first nibble of solid foods such as sweet potatoes. 
+        Text from "Exclusive: Watch Bei Bei the Zoo Panda Cub Grow Up" by Jennifer S. Holland for National Geographic News Adapted by Allyson Shaw, NG Staff
+        </div>
+      </div>
+      
+      <!--<div id="sampleText">
+        <p>Published July 13, 2016 :::: Bei Bei (bay-bWhen Bei Bei was about three months old, his eyes finally opened. Soon he was taking his first steps, losing his first tooth, and taking his first nibble of solid foods such as sweet potatoes. “Of all our cubs, he’s been the most interested in trying new foods,” panda keeper Laurie Thompson says.ay) the giant panda is now over 60 pounds—and growing! But he wasn’t always so giant. The one-year-old cub, which lives at the Smithsonian's National Zoo in Washington, D.C., was about the size of a stick of butter when he was born. Cared for by zookeepers and his mom, Mei Xiang (may-SHONG), Bei Bei has spent the last several months going through a major growth spurt.Before long the cub will stop drinking his mother’s milk and eat nothing but bamboo. But even as he grows, he’ll stay with his mom for another two years. By the time he’s four years old, Bei Bei will weigh about 250 pounds. At that point he’ll move to a panda reserve in China, where he’ll enter a breeding program to help his species survive. No wonder this panda is such a big deal! “Of all our cubs, he’s been the most interested in trying new foods,” panda keeper Laurie Thompson says.e cub will stop drinking his mother’s milk and eat nothing but bamboo. But even as he grows, he’ll stay with his mom for another two years. By the time he’s four years old, Bei Bei will weigh about 250 pounds. At that point he’ll move to a panda reserve in China, where he’ll enter a breeding program to help his species survive. No wonder this panda is such a big deal!</p>
         <p>At birth Bei Bei was blind, furless, and weighed less than a third of a pound. Within 48 hours, white fur began to grow on partsWhen Bei Bei was about three months old, his eyes finally opened. Soon he was taking his first steps, losing his first tooth, and taking his first nibble of solid foods such as sweet potatoes. “Of all our cubs, he’s been the most interested in trying new foods,” panda keeper Laurie Thompson says.When Bei Bei was about three months old, his eyes finally opened. Soon he was taking his first steps, losing his first tooth, and taking his first nibble of solid foods such as sweet potatoes. “Of all our cubs, he’s been the most interested in trying new foods,” panda keeper Laurie Thompson says.Bei Bei is now in basic training, learning to come when keepers call to him. Next he’ll master standing, lying down, presenting his paws, and opening his mouth on command—all actions that will make it easier for veterinarians and zookeepers to give Bei Bei checkups. Before long When Bei Bei was about three months old, his eyes finally opened. Soon he was taking his first steps, losing his first tooth, and taking his first nibble of solid foods such as sweet potatoes. “Of all our cubs, he’s been the most interested in trying new foods,” panda keeper Laurie Thompson says.e cub will stop drinking his mother’s milk and eat nothing but bamboo. But even as he grows, he’ll stay with his mom for another two years. By the time he’s four years old, Bei Bei will weigh about 250 pounds. At that point he’ll move to a panda reserve in China of his wrinkly skin. Two weeks later, dark fur started cover the rest of his body. Up until then, Bei Bei’s mom had been cuddling with the infant almost nonstop to keep him toasty. But Bei Bei’s new coat kept him warm enough to allow Mei When Bei Bei was about three months old, his eyes finally opened. Soon he was taking his first steps, losing his first tooth, and taking his first nibble of solid foods such as sweet potatoes. “Of When Bei Bei was about three months old, his eyes finally opened. Soon he was taking his first steps, losing his first tooth, and taking his first nibble of solid foods such as sweet potatoes. “Of all our cubs, he’s been the most interested in trying new foods,” panda keeper Laurie Thompson says.all our cubs, he’s been the most interested in trying new foods,” panda keeper Laurie Thompson says.Xhang to slip out of her den for food breaks. Mei Xhang was never gone for long though. Whenever Bei Bei called out, she quickly returned to nuzzle or nurse the infant.</p>
         <p>When Bei Bei was about three months old, his eyes finally opened. Soon he was taking his first steps, losing his first tooth, and taking his first nibble of solid foods such as sweet potatoes. “Of all our cubs, he’s been the most interested in trying new foods,” panda keeper Laurie Thompson says. Bei Bei is now in basic training, learning to come when keepers call to him. Next he’ll master standing, lying down, presenting his paws, and opening his mouth on command—all actions that will make it easier for veterinarians and zookeepers to give Bei Bei checkups. Before long When Bei Bei was about three months old, his eyes finally opened. Soon he was taking his first steps, losing his first tooth, and taking his first nibble of solid foods such as sweet potatoes.</p>
         <p>Text from "Exclusive: Watch Bei Bei the Zoo Panda Cub Grow Up" by Jennifer S. Holland for National Geographic News Adapted by Allyson Shaw, NG Staff</p>
-        <!--
           <p>Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit amet quam egestas semper. Aenean ultricies mi vitae est. Mauris placerat eleifend leo. Quisque sit amet est et sapien ullamcorper pharetra. Vestibulum erat wisi, condimentum sed, commodo vitae, ornare sit amet, wisi. Aenean fermentum, elit eget tincidunt condimentum, eros ipsum rutrum orci, sagittis tempus lacus enim ac dui. Donec non enim in turpis pulvinar facilisis. Ut felis. Praesent dapibus, neque id cursus faucibus, tortor neque egestas augue, eu vulputate magna eros eu erat. Aliquam erat volutpat. Nam dui mi, tincidunt quis, accumsan porttitor, facilisis luctus, metusPellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit amet quam egestas semper. Aenean ultricies mi vitae est. Mauris placerat eleifend leo. Quisque sit amet est et sapien ullamcorper pharetra. Vestibulum erat wisi, condimentum sed, commodo vitae, ornare sit amet, wisi. Aenean fermentum, elit eget tincidunt condimentum, eros ipsum rutrum orci, sagittis tempus lacus enim ac dui. Donec non enim in turpis pulvinar facilisis. Ut felis. Praesent dapibus, neque id cursus faucibus, tortor neque egestas augue, eu vulputate magnaPellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit amet quam egestas semper. Aenean ultricies mi vitae est. Mauris placerat eleifend leo. Quisque sit amet est et sapien ullamcorper pharetra. Vestibulum erat wisi, condimentum sed, commodo vitae, ornare sit amet, wisi. Aenean fermentum, elit eget tincidunt condimentum, eros ipsum rutrum orci, sagittis tempus lacus enim ac dui. Donec non enim in turpis pulvinar facilisis. Ut felis. Praesent dapibus, neque id cursus faucibus, tortor neque egestas augue, eu vulputate magna</p>
          <p>Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit amet quam egestas semper. Aenean ultricies mi vitae est. Mauris placerat eleifend leo. Quisque sit amet est et sapien ullamcorper pharetra. Vestibulum erat wisi, condimentum sed, commodo vitae, ornare sit amet, wisi. Aenean fermentum, elit eget tincidunt condimentum, eros ipsum rutrum orci, sagittis tempus lacus enim ac dui. Donec non enim in turpis pulvinar facilisis. Ut felis. Praesent dapibus, neque id cursus faucibus, tortor neque egestas augue, eu vulputate magna eros eu erat. Aliquam erat volutpat. Nam dui mi, tincidunt quis, accumsan porttitor, facilisis luctus, metusPellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit amet quam egestas semper. Aenean ultricies mi vitae est. Mauris placerat eleifend leo. Quisque sit amet est et sapien ullamcorper pharetra. Vestibulum erat wisi, condimentum sed, commodo vitae, ornare sit amet, wisi. Aenean fermentum, elit eget tincidunt condimentum, eros ipsum rutrum orci, sagittis tempus lacus enim ac dui. Donec non enim in turpis pulvinar facilisis. Ut felis. Praesent dapibus, neque id cursus faucibus, tortor neque egestas augue, eu vulputate magna Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit amet quam egestas semper. Aenean ultricies mi vitae est. Mauris placerat eleifend leo. Quisque sit amet est et sapien ullamcorper pharetra. Vestibulum erat wisi, condimentum sed, commodo vitae, ornare sit amet, wisi. Aenean fermentum, elit eget tincidunt condimentum, eros ipsum rutrum orci, sagittis tempus lacus enim ac dui. Donec non enim in turpis pulvinar facilisis. Ut felis. Praesent dapibus, neque id cursus faucibus, tortor neque egestas augue, eu vulputate magna </p>
          <p>Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit amet quam egestas semper. Aenean ultricies mi vitae est. Mauris placerat eleifend leo. Quisque sit amet est et sapien ullamcorper pharetra. Vestibulum erat wisi, condimentum sed, commodo vitae, ornare sit amet, wisi. Aenean fermentum, elit eget tincidunt condimentum, eros ipsum rutrum orci, sagittis tempus lacus enim ac dui. Donec non enim in turpis pulvinar facilisis. Ut felis. Praesent dapibus, neque id cursus faucibus, tortor neque egestas augue, eu vulputate magna eros eu erat. Aliquam erat volutpat. Nam dui mi, tincidunt quis, accumsan porttitor, facilisis luctus, metus</p>
          <p>Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit amet quam egestas semper. Aenean ultricies mi vitae est. Mauris placerat eleifend leo. Quisque sit amet est et sapien ullamcorper pharetra. Vestibulum erat wisi, condimentum sed, commodo vitae, ornare sit amet, wisi. Aenean fermentum, elit eget tincidunt condimentum, eros ipsum rutrum orci, sagittis tempus lacus enim ac dui. Donec non enim in turpis pulvinar facilisis. Ut felis. Praesent dapibus, neque id cursus faucibus, tortor neque egestas augue, eu vulputate magna eros eu erat. Aliquam erat volutpat. Nam dui mi, tincidunt quis, accumsan porttitor, facilisis luctus, metus</p>
          <p>Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit amet quam egestas semper. Aenean ultricies mi vitae est. Mauris placerat eleifend leo. Quisque sit amet est et sapien ullamcorper pharetra. Vestibulum erat wisi, condimentum sed, commodo vitae, ornare sit amet, wisi. Aenean fermentum, elit eget tincidunt condimentum, eros ipsum rutrum orci, sagittis tempus lacus enim ac dui. Donec non enim in turpis pulvinar facilisis. Ut felis. Praesent dapibus, neque id cursus faucibus, tortor neque egestas augue, eu vulputate magna eros eu erat. Aliquam erat volutpat. Nam dui mi, tincidunt quis, accumsan porttitor, facilisis luctus, metus</p>
          <p>Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit amet quam egestas semper. Aenean ultricies mi vitae est. Mauris placerat eleifend leo. Quisque sit amet est et sapien ullamcorper pharetra. Vestibulum erat wisi, condimentum sed, commodo vitae, ornare sit amet, wisi. Aenean fermentum, elit eget tincidunt condimentum, eros ipsum rutrum orci, sagittis tempus lacus enim ac dui. Donec non enim in turpis pulvinar facilisis. Ut felis. Praesent dapibus, neque id cursus faucibus, tortor neque egestas augue, eu vulputate magna eros eu erat. Aliquam erat volutpat. Nam dui mi, tincidunt quis, accumsan porttitor, facilisis luctus, metusPellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit amet quam egestas semper. Aenean ultricies mi vitae est. Mauris placerat eleifend leo. Quisque sit amet est et sapien ullamcorper pharetra. Vestibulum erat wisi, condimentum sed, commodo vitae, ornare sit amet, wisi. Aenean fermentum, elit eget tincidunt condimentum, eros ipsum rutrum orci, sagittis tempus lacus enim ac dui. Donec non enim in turpis pulvinar facilisis. Ut felis. Praesent dapibus, neque id cursus faucibus, tortor neque egestas augue, eu vulputate magna Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit amet quam egestas semper. Aenean ultricies mi vitae est. Mauris placerat eleifend leo. Quisque sit amet est et sapien ullamcorper pharetra. Vestibulum erat wisi, condimentum sed, commodo vitae, ornare sit amet, wisi. Aenean fermentum, elit eget tincidunt condimentum, eros ipsum rutrum orci, sagittis tempus lacus enim ac dui. Donec non enim in turpis pulvinar facilisis. Ut felis. Praesent dapibus, neque id cursus faucibus, tortor neque egestas augue, eu vulputate magna</p>
-       -->
-      </div>
+      </div>-->
    </body>
 </html>
