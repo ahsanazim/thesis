@@ -177,9 +177,11 @@
                   x = x_sum / avg_denom;
                   y = y_sum / avg_denom;
 
+                  // add an offset to deal with slight innacuracy (one line' worth)
+                  y += 23;
 
                   // draw dot at current gaze position    DO NOT DELETE!!!! -- uncomment whenever you need tracer
-                  
+                  /*
                   var dot_color = 'green';
                   var dot_size = '5px';
                   $("body").append(
@@ -191,6 +193,7 @@
                        .css('height', dot_size)
                        .css('background-color', dot_color)
                   );
+                  */
                   
 
                   // highlight word at current gaze position
@@ -209,8 +212,28 @@
                     {
                         if (y > lines[i].top && y < lines[i].bottom)
                         {
-                            $("#highlighter").css("height",lines[i].bottom - lines[i].top);
-                            $("#highlighter").css("top", lines[i].top);
+                            var centerPos = lines[i].top;
+                            var bottomPos = lines[i].bottom;
+                            if (lines[i+1] !== null && lines[i+1] !== undefined) {
+                              bottomPos = lines[i+1].top;  
+                            }                                                        
+                            var hlightHeight = bottomPos - centerPos;
+                            var topPos = centerPos - hlightHeight;
+                            if (lines[i-1] !== null && lines[i-1] !== undefined) {
+                              topPos = lines[i-1].top;  
+                            } 
+                            /* // other way for top and bottom pos
+                            var topPos = centerPos - hlightHeight;
+                            var bottomPos = centerPos + hlightHeight;
+                            */
+
+                            // height of each highlighter is same
+                            $(".hlighterCenter, .hlighterOuter").css("height", hlightHeight);
+
+                            // positions of top bottom and center
+                            $("#hlighterTop").css("top", topPos);                                                   
+                            $(".hlighterCenter").css("top", centerPos);
+                            $("#hlighterBottom").css("top", bottomPos);                           
                             break;
                         } 
                     }
@@ -288,17 +311,25 @@
           font-family: 'Georgia';
           line-height: 28px;
         }
-        #highlighter {
-          background-color:yellow;
+        .hlighter {
           position:absolute;
           width:100%;
           z-index: -1;
+        }
+        /* for box shadow: https://stackoverflow.com/questions/45143916/dim-entire-screen-except-a-fixed-area */
+        /* this box shadow is doing something to the opacity of the top highlighter div, but no issue yet */
+        .hlighterCenter {
+          background-color:white;
+          box-shadow: 0 0 0 100vmax rgba(0,0,0,.18);
+        }
+        .hlighterOuter {
+          background-color:khaki;
+          opacity: 0.5;    
         }
         #wrappingText {
           display: inline;
         } 
         #container {
-
         }
       </style>
 		
@@ -310,7 +341,9 @@
       </div>
     
       <div id="container">
-        <div id="highlighter"></div>
+        <div class="hlighter hlighterOuter" id="hlighterTop"></div>
+        <div class="hlighter hlighterCenter"></div>
+        <div class="hlighter hlighterOuter" id="hlighterBottom"></div>
         <div id="wrappingText">Published July 13, 2016 :::: Bei Bei (bay-bWhen Bei Bei was about three months old, his eyes finally opened. Soon he was taking his first steps, losing his first tooth, and taking his first nibble of solid foods such as sweet potatoes. “Of all our cubs, he’s been the most interested in trying new foods,” panda keeper Laurie Thompson says.ay) the giant panda is now over 60 pounds—and growing! But he wasn’t always so giant. The one-year-old cub, which lives at the Smithsonian's National Zoo in Washington, D.C., was about the size of a stick of butter when he was born. Cared for by zookeepers and his mom, Mei Xiang (may-SHONG), Bei Bei has spent the last several months going through a major growth spurt.Before long the cub will stop drinking his mother’s milk and eat nothing but bamboo. But even as he grows, he’ll stay with his mom for another two years. By the time he’s four years old, Bei Bei will weigh about 250 pounds. At that point he’ll move to a panda reserve in China, where he’ll enter a breeding program to help his species survive. No wonder this panda is such a big deal! “Of all our cubs, he’s been the most interested in trying new foods,” panda keeper Laurie Thompson says.e cub will stop drinking his mother’s milk and eat nothing but bamboo. But even as he grows, he’ll stay with his mom for another two years. By the time he’s four years old, Bei Bei will weigh about 250 pounds.</br></br>At that point he’ll move to a panda reserve in China, where he’ll enter a breeding program to help his species survive. No wonder this panda is such a big deal!.
         At birth Bei Bei was blind, furless, and weighed less than a third of a pound. Within 48 hours, white fur began to grow on partsWhen Bei Bei was about three months old, his eyes finally opened. Soon he was taking his first steps, losing his first tooth, and taking his first nibble of solid foods such as sweet potatoes. “Of all our cubs, he’s been the most interested in trying new foods,” panda keeper Laurie Thompson says.When Bei Bei was about three months old, his eyes finally opened. Soon he was taking his first steps, losing his first tooth, and taking his first nibble of solid foods such as sweet potatoes. “Of all our cubs, he’s been the most interested in trying new foods,” panda keeper Laurie Thompson says.Bei Bei is now in basic training, learning to come when keepers call to him. Next he’ll master standing, lying down, presenting his paws, and opening his mouth on command—all actions that will make it easier for veterinarians and zookeepers to give Bei Bei checkups. Before long When Bei Bei was about three months old, his eyes finally opened. Soon he was taking his first steps, losing his first tooth, and taking his first nibble of solid foods such as sweet potatoes. “Of all our cubs, he’s been the most interested in trying new foods,” panda keeper Laurie Thompson says.e cub will stop drinking his mother’s milk and eat nothing but bamboo. But even as he grows, he’ll stay with his mom for another two years. By the time he’s four years old, Bei Bei will weigh about 250 pounds. At that point he’ll move to a panda reserve in China of his wrinkly skin. Two weeks later, dark fur started cover the rest of his body. Up until then, Bei Bei’s mom had been cuddling with the infant almost nonstop to keep him toasty. But Bei Bei’s new coat kept him warm enough to allow Mei When Bei Bei was about three months old, his eyes finally opened. Soon he was taking his first steps, losing his first tooth, and taking his first nibble of solid foods such as sweet potatoes.</br></br>“Of When Bei Bei was about three months old, his eyes finally opened. Soon he was taking his first steps, losing his first tooth, and taking his first nibble of solid foods such as sweet potatoes. “Of all our cubs, he’s been the most interested in trying new foods,” panda keeper Laurie Thompson says.all our cubs, he’s been the most interested in trying new foods,” panda keeper Laurie Thompson says.Xhang to slip out of her den for food breaks. Mei Xhang was never gone for long though. Whenever Bei Bei called out, she quickly returned to nuzzle or nurse the infant. When Bei Bei was about three months old, his eyes finally opened. Soon he was taking his first steps, losing his first tooth, and taking his first nibble of solid foods such as sweet potatoes. “Of all our cubs, he’s been the most interested in trying new foods,” panda keeper Laurie Thompson says. Bei Bei is now in basic training, learning to come when keepers call to him. Next he’ll master standing, lying down, presenting his paws, and opening his mouth on command—all actions that will make it easier for veterinarians and zookeepers to give Bei Bei checkups. Before long When Bei Bei was about three months old, his eyes finally opened. Soon he was taking his first steps, losing his first tooth, and taking his first nibble of solid foods such as sweet potatoes. 
         Text from "Exclusive: Watch Bei Bei the Zoo Panda Cub Grow Up" by Jennifer S. Holland for National Geographic News Adapted by Allyson Shaw, NG Staff
