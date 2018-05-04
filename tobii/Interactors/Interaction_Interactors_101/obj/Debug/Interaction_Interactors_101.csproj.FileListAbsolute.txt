@@ -29,3 +29,8 @@ C:\Users\Kathryn Faolin\Documents\thesis\tobii\Interactors\Interaction_Interacto
 C:\Users\Kathryn Faolin\Documents\thesis\tobii\Interactors\Interaction_Interactors_101\obj\Debug\Interaction_Interactors_101.pdb
 C:\Users\Kathryn Faolin\Documents\thesis\tobii\Interactors\Interaction_Interactors_101\bin\Debug\websocket-sharp.dll
 C:\Users\Kathryn Faolin\Documents\thesis\tobii\Interactors\Interaction_Interactors_101\bin\Debug\websocket-sharp.xml
+C:\Users\Kathryn Faolin\Documents\thesis\tobii\Interactors\Interaction_Interactors_101\bin\Debug\Interaction_Interactors_101.exe.manifest
+C:\Users\Kathryn Faolin\Documents\thesis\tobii\Interactors\Interaction_Interactors_101\bin\Debug\Interaction_Interactors_101.application
+C:\Users\Kathryn Faolin\Documents\thesis\tobii\Interactors\Interaction_Interactors_101\obj\Debug\Interaction_Interactors_101.TrustInfo.xml
+C:\Users\Kathryn Faolin\Documents\thesis\tobii\Interactors\Interaction_Interactors_101\obj\Debug\Interaction_Interactors_101.exe.manifest
+C:\Users\Kathryn Faolin\Documents\thesis\tobii\Interactors\Interaction_Interactors_101\obj\Debug\Interaction_Interactors_101.application

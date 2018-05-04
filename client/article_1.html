@@ -32,8 +32,8 @@
             buttonStop.onclick = function() {
               // Close the connection, if open.
               if (ws.readyState === WebSocket.OPEN) {
-                console.log("pandas:");
-                console.log(JSON.stringify(linesCounterDict));
+                //ws.send(JSON.stringify({pandas: linesCounterDict}));
+                ws.send("pandas");
                 ws.close();
                 window.location.href = INDEX_URL; // causes log to dissapear
               }
