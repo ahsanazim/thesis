@@ -2,20 +2,10 @@
 <html>
    <head>
 	   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
-      <script type="text/javascript">
-        var spanInfoArr = []; // populated with objects in `tokenize` function below
-                              // has positional info on all spans; hence no need to recompute
+      <script type="text/javascript">    
         // array of arrays with last 10 x,y positions of gaze tracker
         var coords_q = [[-1,-1],[-1,-1],[-1,-1],[-1,-1],[-1,-1],[-1,-1],[-1,-1],[-1,-1],[-1,-1],[-1,-1]];
-        var span_line_q = ["1", "1", "1", "1", "1", "1", "1", "1", "1", "1"];
-        // var linesDict = {};        /* see below - line-id dictionary of arrays */
-        var prevLineNum = "1";
-        var prevId = "1";
-        var counter = 3;
-
-        //////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        /////                    NEW HIGHLIGHTING GLOBAL VARS  - all others for old technique                    /////
-        /////////////////////////////////////////////////////////////////////////////////////////////////////////////        
+        
         var linesCounterDict = {};      // maps line nums to what proportion of units of time that line was seen
 
         // populate the dictionary - could be done much simpler with lodash        
@@ -23,122 +13,8 @@
         tempArr.forEach(function(index) {
           linesCounterDict[index] = 0;
         });
-        //////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        //                                            ~  global end   ~
-        //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-        // from https://stackoverflow.com/questions/25529936/how-to-highlight-a-word-given-coordinates
-        $.fn.extend({
-          // this function recursively tokenizes all text nodes in an element
-          tokenize: function (currId, lineNum) {
-            return this.not(".tokenized").each(function () {
-              $(this).addClass("tokenized").children().tokenize(currId);
-              $(this).contents().each(function () {
-                var node = this,
-                  parent = this.parentNode,
-                  tokens, tokenCount;
 
-                // text node: tokenize, dissolve into elements, remove original text node
-                if (node.nodeType === 3) {
-                  tokens = $(node).text().replace(/\s+/g, " ").split(" ");
-                  tokenCount = tokens.length;
-                  $.each(tokens, function (i, token) {
-                    if (token > "") {
-                      currId += 1         // each span token will have unique id
-                      var tokId = "tok_" + currId.toString();
-                      var wrapIn = "<span class='token' id='" + tokId + "'>";
-                      parent.insertBefore($(wrapIn).text(token)[0], node);
-
-                      // determine what line this word is on (if first word then line === 1)
-                      if (currId > 1) {
-                        var currSpanX = $("#" + tokId).position().left;
-                        var prevTokId = "tok_" + (currId - 1).toString();
-                        var prevSpanX =  $("#" + prevTokId).position().left;
-                        if (currSpanX < prevSpanX) {
-                          counter -=1;
-                        }
-                        if (counter === 0) {
-                          lineNum = (currSpanX < prevSpanX) ? (lineNum + 1) : lineNum;
-                          counter = 2;
-                        }
-                        //lineNum = (currSpanX < prevSpanX) ? (lineNum + 1) : lineNum;
-                        // if (currSpanX < prevSpanX) {     /* for debugging line changing problems */
-                        //   console.log("SHIFT");
-                        //   console.log(currSpanX);
-                        //   console.log(prevSpanX);
-                        //   console.log(tokId);
-                        //   console.log(prevTokId);
-                        // }
-                      }
-                      $("#" + tokId).removeClass().addClass('token line' + lineNum.toString())
-
-                      // create object with just created span's relevant positional info
-                      // add to global array
-                      var spanInfoObj = {
-                        id: tokId,
-                        height: $("#" + tokId).height(),
-                        pos: $("#" + tokId).position(),
-                        width: $("#" + tokId).width(),
-                        line: lineNum
-                      };
-                      spanInfoArr.push(spanInfoObj);
-
-                      /* for if we want to create a dictionary keyed by line num and with vals
-                        as arrays of corresponding ids */
-                      // // each line gets an array of ids corresponding to words on that line
-                      // if (linesDict[lineNum]) {
-                      //   linesDict[lineNum].push(tokId);
-                      // } else {
-                      //   linesDict[lineNum] = [tokId];
-                      // }
-                    }
-                    if (i < tokenCount - 1) {
-                      parent.insertBefore(document.createTextNode(" "), node);
-                    }
-                  });
-                  parent.removeChild(node);
-                }
-              });
-            });
-          }
-        });
-
-        /* checks the number of times `check_line` is present in global arr span_line_q */
-        function getSpanLineCount(check_line) 
-        {
-          var count = 0;
-          span_line_q.forEach(function(curr_line) {
-            if (curr_line.toString() === check_line.toString()) {
-              count += 1;
-            }
-          });
-          return count;
-        }
-
-        /* checks whether "enough" of past 10 seen tokens are on same line*/
-        function getStableLineNum()
-        {
-          var ENOUGH_COUNT = 7;
-          enoughCountLineNum = "NA" // line present 3/4 times in arr ... none yet
-          span_line_q.forEach(function(span_line) {
-            var line_count = getSpanLineCount(span_line);
-            if (line_count >= ENOUGH_COUNT) {
-              enoughCountLineNum = span_line.toString();
-            }
-          });
-          return enoughCountLineNum;       // NA if never seen
-        }      
-
-        /* returns array of integers of range [currLine-X ... currLine+Y] */
-        // NOTE - you're doing some messing around here to fix for the weird innacuracy in tracker
-        // https://stackoverflow.com/questions/3895478/does-javascript-have-a-method-like-range-to-generate-a-range-within-the-supp
-        function getLineRangeArr(currLineStr)
-        {
-          var currLineInt = parseInt(currLineStr);
-          return Array.from(new Array(3), (x,i) => i + currLineInt-1);
-        }              
-
-          
         /* Main function that runs when you click on websocket button */
         function WebSocketTest()
         {
@@ -215,7 +91,7 @@
 
 
                     /////////////////////////////////////////////////////////////////////////////////
-                    // NEW HIGHLIGHTING MECHANISM
+                    // HIGHLIGHTING MECHANISM
                     // inspired by: https://stackoverflow.com/questions/2456442/how-can-i-highlight-the-line-of-text-that-is-closest-to-the-mouse/2456631#2456631
                     // and hence: http://jsbin.com/avuku/15/edit?html,js,output
                     /////////////////////////////////////////////////////////////////////////////////
@@ -258,48 +134,6 @@
                           break;
                         } 
                     }
-                    
-                    /////////////////////////////////////////////////////////////////////////////////
-                    // ALL THE OLD CODE FOR HIGHLIGHTING AND SUCH - tokens etc. pretty useless rn
-                    // but you must integrate the important stuff into the new highlighting mechanism
-                    /////////////////////////////////////////////////////////////////////////////////
-
-                    /*
-                    // iterate through array of span objects and find id of span that matches condition
-                    // then change color of span with said id
-                    spanInfoArr.forEach(function(spanObj) {
-                       if(y >= spanObj.pos.top && y <= spanObj.pos.top + spanObj.height && x >= spanObj.pos.left && x <= spanObj.pos.left + spanObj.width){
-
-
-                        // using best 7 of 10 method
-                        // ensures that eyes wandering to random words doesnt cause immediate change of 
-                        // line, you want a flow, i.e. mimicking how people actually read
-                        
-                        if (spanObj.id.toString() !== prevId) {
-                          prevId = spanObj.id.toString();
-                          span_line_q.push(spanObj.line.toString());
-                          span_line_q.shift();
-                          var currLineNum = getStableLineNum();
-                          if (currLineNum !== "NA") {   // if it is NA then youre moving fast hence stick with previous
-                            // $(".line" + prevLineNum.toString()).css('color', 'black'); // if you wanna do smthng with prev
-                            $(".token").css('color','grey');                             // make everything else grey
-                            var lineRangeArr = getLineRangeArr(currLineNum.toString());
-                            lineRangeArr.forEach(function(rangeLineNum) {       // color range of lines
-                              $(".line" + rangeLineNum.toString()).css('color', 'blue');
-                            });
-                            prevLineNum = currLineNum;
-                          }                           
-                        }
-
-
-                        // the raw method, follows your eyes everywhere - can do by word or line
-                        //$(".line" + spanObj.line.toString()).css('color', 'green');
-                        //$("#" + spanObj.id).css('color', 'red');
-                       }                        
-                    });
-                    */  
-
-
 
                   });       
                 }
