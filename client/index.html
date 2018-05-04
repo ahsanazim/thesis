@@ -13,6 +13,20 @@
         var prevId = "1";
         var counter = 3;
 
+        //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        /////                    NEW HIGHLIGHTING GLOBAL VARS  - all others for old technique                    /////
+        /////////////////////////////////////////////////////////////////////////////////////////////////////////////        
+        var linesCounterDict = {};      // maps line nums to what proportion of units of time that line was seen
+
+        // populate the dictionary - could be done much simpler with lodash        
+        var tempArr = Array.apply(null, Array(51)).map(function (_, i) {return i;});
+        tempArr.forEach(function(index) {
+          linesCounterDict[index] = 0;
+        });
+        //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        //                                            ~  global end   ~
+        //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
         // from https://stackoverflow.com/questions/25529936/how-to-highlight-a-word-given-coordinates
         $.fn.extend({
           // this function recursively tokenizes all text nodes in an element
@@ -178,7 +192,7 @@
                   y = y_sum / avg_denom;
 
                   // add an offset to deal with slight innacuracy (one line' worth)
-                  y += 23;
+                  y += 28;
 
                   // draw dot at current gaze position    DO NOT DELETE!!!! -- uncomment whenever you need tracer
                   /*
@@ -206,35 +220,42 @@
                     // and hence: http://jsbin.com/avuku/15/edit?html,js,output
                     /////////////////////////////////////////////////////////////////////////////////
 
-                    var lines = document.getElementById("wrappingText").getClientRects();
+                    var lines = document.getElementById("wrappingText").getClientRects();  // declared globally instead
                     var highlighter = document.getElementById("highlighter");
+
+
+                    console.log(JSON.stringify(linesCounterDict));
+
+                    // all the action
                     for (var i=0, max = lines.length; i < max; i++)
                     {
                         if (y > lines[i].top && y < lines[i].bottom)
                         {
-                            var centerPos = lines[i].top;
-                            var bottomPos = lines[i].bottom;
-                            if (lines[i+1] !== null && lines[i+1] !== undefined) {
-                              bottomPos = lines[i+1].top;  
-                            }                                                        
-                            var hlightHeight = bottomPos - centerPos;
-                            var topPos = centerPos - hlightHeight;
-                            if (lines[i-1] !== null && lines[i-1] !== undefined) {
-                              topPos = lines[i-1].top;  
-                            } 
-                            /* // other way for top and bottom pos
-                            var topPos = centerPos - hlightHeight;
-                            var bottomPos = centerPos + hlightHeight;
-                            */
+                          linesCounterDict[i] += 1; // update global line counter
 
-                            // height of each highlighter is same
-                            $(".hlighterCenter, .hlighterOuter").css("height", hlightHeight);
+                          var centerPos = lines[i].top;
+                          var bottomPos = lines[i].bottom;
+                          if (lines[i+1] !== null && lines[i+1] !== undefined) {
+                            bottomPos = lines[i+1].top;  
+                          }                                                        
+                          var hlightHeight = bottomPos - centerPos;
+                          var topPos = centerPos - hlightHeight;
+                          if (lines[i-1] !== null && lines[i-1] !== undefined) {
+                            topPos = lines[i-1].top;  
+                          } 
+                          /* // other way for top and bottom pos
+                          var topPos = centerPos - hlightHeight;
+                          var bottomPos = centerPos + hlightHeight;
+                          */
 
-                            // positions of top bottom and center
-                            $("#hlighterTop").css("top", topPos);                                                   
-                            $(".hlighterCenter").css("top", centerPos);
-                            $("#hlighterBottom").css("top", bottomPos);                           
-                            break;
+                          // height of each highlighter is same
+                          $(".hlighterCenter, .hlighterOuter").css("height", hlightHeight);
+
+                          // positions of top bottom and center
+                          $("#hlighterTop").css("top", topPos);                                                   
+                          $(".hlighterCenter").css("top", centerPos);
+                          $("#hlighterBottom").css("top", bottomPos);                           
+                          break;
                         } 
                     }
                     
@@ -349,18 +370,6 @@
         Text from "Exclusive: Watch Bei Bei the Zoo Panda Cub Grow Up" by Jennifer S. Holland for National Geographic News Adapted by Allyson Shaw, NG Staff
         </div>
       </div>
-      
-      <!--<div id="sampleText">
-        <p>Published July 13, 2016 :::: Bei Bei (bay-bWhen Bei Bei was about three months old, his eyes finally opened. Soon he was taking his first steps, losing his first tooth, and taking his first nibble of solid foods such as sweet potatoes. “Of all our cubs, he’s been the most interested in trying new foods,” panda keeper Laurie Thompson says.ay) the giant panda is now over 60 pounds—and growing! But he wasn’t always so giant. The one-year-old cub, which lives at the Smithsonian's National Zoo in Washington, D.C., was about the size of a stick of butter when he was born. Cared for by zookeepers and his mom, Mei Xiang (may-SHONG), Bei Bei has spent the last several months going through a major growth spurt.Before long the cub will stop drinking his mother’s milk and eat nothing but bamboo. But even as he grows, he’ll stay with his mom for another two years. By the time he’s four years old, Bei Bei will weigh about 250 pounds. At that point he’ll move to a panda reserve in China, where he’ll enter a breeding program to help his species survive. No wonder this panda is such a big deal! “Of all our cubs, he’s been the most interested in trying new foods,” panda keeper Laurie Thompson says.e cub will stop drinking his mother’s milk and eat nothing but bamboo. But even as he grows, he’ll stay with his mom for another two years. By the time he’s four years old, Bei Bei will weigh about 250 pounds. At that point he’ll move to a panda reserve in China, where he’ll enter a breeding program to help his species survive. No wonder this panda is such a big deal!</p>
-        <p>At birth Bei Bei was blind, furless, and weighed less than a third of a pound. Within 48 hours, white fur began to grow on partsWhen Bei Bei was about three months old, his eyes finally opened. Soon he was taking his first steps, losing his first tooth, and taking his first nibble of solid foods such as sweet potatoes. “Of all our cubs, he’s been the most interested in trying new foods,” panda keeper Laurie Thompson says.When Bei Bei was about three months old, his eyes finally opened. Soon he was taking his first steps, losing his first tooth, and taking his first nibble of solid foods such as sweet potatoes. “Of all our cubs, he’s been the most interested in trying new foods,” panda keeper Laurie Thompson says.Bei Bei is now in basic training, learning to come when keepers call to him. Next he’ll master standing, lying down, presenting his paws, and opening his mouth on command—all actions that will make it easier for veterinarians and zookeepers to give Bei Bei checkups. Before long When Bei Bei was about three months old, his eyes finally opened. Soon he was taking his first steps, losing his first tooth, and taking his first nibble of solid foods such as sweet potatoes. “Of all our cubs, he’s been the most interested in trying new foods,” panda keeper Laurie Thompson says.e cub will stop drinking his mother’s milk and eat nothing but bamboo. But even as he grows, he’ll stay with his mom for another two years. By the time he’s four years old, Bei Bei will weigh about 250 pounds. At that point he’ll move to a panda reserve in China of his wrinkly skin. Two weeks later, dark fur started cover the rest of his body. Up until then, Bei Bei’s mom had been cuddling with the infant almost nonstop to keep him toasty. But Bei Bei’s new coat kept him warm enough to allow Mei When Bei Bei was about three months old, his eyes finally opened. Soon he was taking his first steps, losing his first tooth, and taking his first nibble of solid foods such as sweet potatoes. “Of When Bei Bei was about three months old, his eyes finally opened. Soon he was taking his first steps, losing his first tooth, and taking his first nibble of solid foods such as sweet potatoes. “Of all our cubs, he’s been the most interested in trying new foods,” panda keeper Laurie Thompson says.all our cubs, he’s been the most interested in trying new foods,” panda keeper Laurie Thompson says.Xhang to slip out of her den for food breaks. Mei Xhang was never gone for long though. Whenever Bei Bei called out, she quickly returned to nuzzle or nurse the infant.</p>
-        <p>When Bei Bei was about three months old, his eyes finally opened. Soon he was taking his first steps, losing his first tooth, and taking his first nibble of solid foods such as sweet potatoes. “Of all our cubs, he’s been the most interested in trying new foods,” panda keeper Laurie Thompson says. Bei Bei is now in basic training, learning to come when keepers call to him. Next he’ll master standing, lying down, presenting his paws, and opening his mouth on command—all actions that will make it easier for veterinarians and zookeepers to give Bei Bei checkups. Before long When Bei Bei was about three months old, his eyes finally opened. Soon he was taking his first steps, losing his first tooth, and taking his first nibble of solid foods such as sweet potatoes.</p>
-        <p>Text from "Exclusive: Watch Bei Bei the Zoo Panda Cub Grow Up" by Jennifer S. Holland for National Geographic News Adapted by Allyson Shaw, NG Staff</p>
-          <p>Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit amet quam egestas semper. Aenean ultricies mi vitae est. Mauris placerat eleifend leo. Quisque sit amet est et sapien ullamcorper pharetra. Vestibulum erat wisi, condimentum sed, commodo vitae, ornare sit amet, wisi. Aenean fermentum, elit eget tincidunt condimentum, eros ipsum rutrum orci, sagittis tempus lacus enim ac dui. Donec non enim in turpis pulvinar facilisis. Ut felis. Praesent dapibus, neque id cursus faucibus, tortor neque egestas augue, eu vulputate magna eros eu erat. Aliquam erat volutpat. Nam dui mi, tincidunt quis, accumsan porttitor, facilisis luctus, metusPellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit amet quam egestas semper. Aenean ultricies mi vitae est. Mauris placerat eleifend leo. Quisque sit amet est et sapien ullamcorper pharetra. Vestibulum erat wisi, condimentum sed, commodo vitae, ornare sit amet, wisi. Aenean fermentum, elit eget tincidunt condimentum, eros ipsum rutrum orci, sagittis tempus lacus enim ac dui. Donec non enim in turpis pulvinar facilisis. Ut felis. Praesent dapibus, neque id cursus faucibus, tortor neque egestas augue, eu vulputate magnaPellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit amet quam egestas semper. Aenean ultricies mi vitae est. Mauris placerat eleifend leo. Quisque sit amet est et sapien ullamcorper pharetra. Vestibulum erat wisi, condimentum sed, commodo vitae, ornare sit amet, wisi. Aenean fermentum, elit eget tincidunt condimentum, eros ipsum rutrum orci, sagittis tempus lacus enim ac dui. Donec non enim in turpis pulvinar facilisis. Ut felis. Praesent dapibus, neque id cursus faucibus, tortor neque egestas augue, eu vulputate magna</p>
-         <p>Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit amet quam egestas semper. Aenean ultricies mi vitae est. Mauris placerat eleifend leo. Quisque sit amet est et sapien ullamcorper pharetra. Vestibulum erat wisi, condimentum sed, commodo vitae, ornare sit amet, wisi. Aenean fermentum, elit eget tincidunt condimentum, eros ipsum rutrum orci, sagittis tempus lacus enim ac dui. Donec non enim in turpis pulvinar facilisis. Ut felis. Praesent dapibus, neque id cursus faucibus, tortor neque egestas augue, eu vulputate magna eros eu erat. Aliquam erat volutpat. Nam dui mi, tincidunt quis, accumsan porttitor, facilisis luctus, metusPellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit amet quam egestas semper. Aenean ultricies mi vitae est. Mauris placerat eleifend leo. Quisque sit amet est et sapien ullamcorper pharetra. Vestibulum erat wisi, condimentum sed, commodo vitae, ornare sit amet, wisi. Aenean fermentum, elit eget tincidunt condimentum, eros ipsum rutrum orci, sagittis tempus lacus enim ac dui. Donec non enim in turpis pulvinar facilisis. Ut felis. Praesent dapibus, neque id cursus faucibus, tortor neque egestas augue, eu vulputate magna Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit amet quam egestas semper. Aenean ultricies mi vitae est. Mauris placerat eleifend leo. Quisque sit amet est et sapien ullamcorper pharetra. Vestibulum erat wisi, condimentum sed, commodo vitae, ornare sit amet, wisi. Aenean fermentum, elit eget tincidunt condimentum, eros ipsum rutrum orci, sagittis tempus lacus enim ac dui. Donec non enim in turpis pulvinar facilisis. Ut felis. Praesent dapibus, neque id cursus faucibus, tortor neque egestas augue, eu vulputate magna </p>
-         <p>Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit amet quam egestas semper. Aenean ultricies mi vitae est. Mauris placerat eleifend leo. Quisque sit amet est et sapien ullamcorper pharetra. Vestibulum erat wisi, condimentum sed, commodo vitae, ornare sit amet, wisi. Aenean fermentum, elit eget tincidunt condimentum, eros ipsum rutrum orci, sagittis tempus lacus enim ac dui. Donec non enim in turpis pulvinar facilisis. Ut felis. Praesent dapibus, neque id cursus faucibus, tortor neque egestas augue, eu vulputate magna eros eu erat. Aliquam erat volutpat. Nam dui mi, tincidunt quis, accumsan porttitor, facilisis luctus, metus</p>
-         <p>Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit amet quam egestas semper. Aenean ultricies mi vitae est. Mauris placerat eleifend leo. Quisque sit amet est et sapien ullamcorper pharetra. Vestibulum erat wisi, condimentum sed, commodo vitae, ornare sit amet, wisi. Aenean fermentum, elit eget tincidunt condimentum, eros ipsum rutrum orci, sagittis tempus lacus enim ac dui. Donec non enim in turpis pulvinar facilisis. Ut felis. Praesent dapibus, neque id cursus faucibus, tortor neque egestas augue, eu vulputate magna eros eu erat. Aliquam erat volutpat. Nam dui mi, tincidunt quis, accumsan porttitor, facilisis luctus, metus</p>
-         <p>Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit amet quam egestas semper. Aenean ultricies mi vitae est. Mauris placerat eleifend leo. Quisque sit amet est et sapien ullamcorper pharetra. Vestibulum erat wisi, condimentum sed, commodo vitae, ornare sit amet, wisi. Aenean fermentum, elit eget tincidunt condimentum, eros ipsum rutrum orci, sagittis tempus lacus enim ac dui. Donec non enim in turpis pulvinar facilisis. Ut felis. Praesent dapibus, neque id cursus faucibus, tortor neque egestas augue, eu vulputate magna eros eu erat. Aliquam erat volutpat. Nam dui mi, tincidunt quis, accumsan porttitor, facilisis luctus, metus</p>
-         <p>Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit amet quam egestas semper. Aenean ultricies mi vitae est. Mauris placerat eleifend leo. Quisque sit amet est et sapien ullamcorper pharetra. Vestibulum erat wisi, condimentum sed, commodo vitae, ornare sit amet, wisi. Aenean fermentum, elit eget tincidunt condimentum, eros ipsum rutrum orci, sagittis tempus lacus enim ac dui. Donec non enim in turpis pulvinar facilisis. Ut felis. Praesent dapibus, neque id cursus faucibus, tortor neque egestas augue, eu vulputate magna eros eu erat. Aliquam erat volutpat. Nam dui mi, tincidunt quis, accumsan porttitor, facilisis luctus, metusPellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit amet quam egestas semper. Aenean ultricies mi vitae est. Mauris placerat eleifend leo. Quisque sit amet est et sapien ullamcorper pharetra. Vestibulum erat wisi, condimentum sed, commodo vitae, ornare sit amet, wisi. Aenean fermentum, elit eget tincidunt condimentum, eros ipsum rutrum orci, sagittis tempus lacus enim ac dui. Donec non enim in turpis pulvinar facilisis. Ut felis. Praesent dapibus, neque id cursus faucibus, tortor neque egestas augue, eu vulputate magna Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit amet quam egestas semper. Aenean ultricies mi vitae est. Mauris placerat eleifend leo. Quisque sit amet est et sapien ullamcorper pharetra. Vestibulum erat wisi, condimentum sed, commodo vitae, ornare sit amet, wisi. Aenean fermentum, elit eget tincidunt condimentum, eros ipsum rutrum orci, sagittis tempus lacus enim ac dui. Donec non enim in turpis pulvinar facilisis. Ut felis. Praesent dapibus, neque id cursus faucibus, tortor neque egestas augue, eu vulputate magna</p>
-      </div>-->
+  
    </body>
 </html>
