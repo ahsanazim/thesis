@@ -33,11 +33,11 @@ namespace Interaction_Interactors_101
             protected override void OnMessage(MessageEventArgs e)
             {
                 string path = @"/Users/Kathryn Faolin/Documents/thesis/data.txt";
-                // System.IO.File.WriteAllText(path, e.Data);
-                if (e.Data == "pandas")
-                {
-                    System.IO.File.WriteAllText(path, e.Data);
-                }
+                System.IO.File.WriteAllText(path, e.Data);
+                //if (e.Data == "pandas")
+                //{
+                //    System.IO.File.WriteAllText(path, e.Data);
+                //}
                 var msg = e.Data == "BALUS"
                           ? "I've been balused already..."
                           : "I'm not available now.";

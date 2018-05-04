@@ -32,8 +32,7 @@
             buttonStop.onclick = function() {
               // Close the connection, if open.
               if (ws.readyState === WebSocket.OPEN) {
-                //ws.send(JSON.stringify({pandas: linesCounterDict}));
-                ws.send("pandas");
+                ws.send(JSON.stringify({pandas: linesCounterDict}));
                 ws.close();
                 window.location.href = INDEX_URL; // causes log to dissapear
               }
@@ -42,7 +41,7 @@
             ws.onopen = function()
             {
               // Web Socket is connected, send data using send()
-              ws.send("Message to send");
+              ws.send("Socket Opened");
               //alert("Message is sent...");
 
             };
