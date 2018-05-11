@@ -34,6 +34,7 @@ namespace Interaction_Interactors_101
             {
                 string path = @"/Users/Kathryn Faolin/Documents/thesis/data.txt";
                 System.IO.File.AppendAllText(path, e.Data);
+                System.IO.File.AppendAllText(path, "\n");
                 //if (e.Data == "pandas")
                 //{
                 //    System.IO.File.WriteAllText(path, e.Data);
