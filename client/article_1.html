@@ -6,13 +6,7 @@
         // array of arrays with last 10 x,y positions of gaze tracker
         var coords_q = [[-1,-1],[-1,-1],[-1,-1],[-1,-1],[-1,-1],[-1,-1],[-1,-1],[-1,-1],[-1,-1],[-1,-1]];
 
-        var linesCounterDict = {};      // maps line nums to what proportion of units of time that line was seen
-
-        // populate the dictionary - could be done much simpler with lodash        
-        var tempArr = Array.apply(null, Array(51)).map(function (_, i) {return i;});
-        tempArr.forEach(function(index) {
-          linesCounterDict[index] = 0;
-        });
+        var data = [];    // array of [line_num, timestamp] objects
 
         var INDEX_URL = "file:///C:/Users/Kathryn Faolin/Documents/thesis/client/index.html";
 
@@ -32,7 +26,7 @@
             buttonStop.onclick = function() {
               // Close the connection, if open.
               if (ws.readyState === WebSocket.OPEN) {
-                ws.send(JSON.stringify({pandas: linesCounterDict}));
+                ws.send(JSON.stringify({pandas: data}));
                 ws.close();
                 window.location.href = INDEX_URL; // causes log to dissapear
               }
@@ -116,7 +110,7 @@
                   {
                       if (y > lines[i].top && y < lines[i].bottom)
                       {
-                        linesCounterDict[i] += 1; // update global line counter
+                        data.push([i, Date.now()]) // record line seen and timestamp for when
 
                         var centerPos = lines[i].top;
                         var bottomPos = lines[i].bottom;
