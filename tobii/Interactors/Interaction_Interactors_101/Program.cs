@@ -33,8 +33,7 @@ namespace Interaction_Interactors_101
             protected override void OnMessage(MessageEventArgs e)
             {
                 string path = @"/Users/Kathryn Faolin/Documents/thesis/data.txt";
-                System.IO.File.AppendAllText(path, e.Data);
-                System.IO.File.AppendAllText(path, "\n");
+                System.IO.File.AppendAllText(path, e.Data + Environment.NewLine);
                 //if (e.Data == "pandas")
                 //{
                 //    System.IO.File.WriteAllText(path, e.Data);
