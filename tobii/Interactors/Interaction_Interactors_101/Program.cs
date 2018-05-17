@@ -38,11 +38,6 @@ namespace Interaction_Interactors_101
                 //{
                 //    System.IO.File.WriteAllText(path, e.Data);
                 //}
-                var msg = e.Data == "BALUS"
-                          ? "I've been balused already..."
-                          : "I'm not available now.";
-
-                Send(msg);
             }
 
             protected override void OnOpen()
@@ -95,6 +90,11 @@ namespace Interaction_Interactors_101
                     }
                 };
 
+            }
+
+            protected override void OnClose(CloseEventArgs e)
+            {
+                base.OnClose(e);
             }
         }
 
