@@ -26,7 +26,16 @@
             buttonStop.onclick = function() {
               // Close the connection, if open.
               if (ws.readyState === WebSocket.OPEN) {
-                ws.send(JSON.stringify({pandas: data}));
+
+                // TODO: conceptual thing - why was doc.getElembyid not giving
+                // correct result unless you toggled?
+                var infoToSend = {
+                  article: 'pandas',
+                  hlight: $("#hlighterCenter").css("visibility"),
+                  data: data
+                };
+
+                ws.send(JSON.stringify(infoToSend));
                 ws.close();
                 window.location.href = INDEX_URL; // causes log to dissapear
               }
@@ -149,7 +158,7 @@
             };
 
             window.onbeforeunload = function(event) {
-              socket.close();
+              ws.close();
             };
           }
           
@@ -160,6 +169,11 @@
           }
         }
 
+        /* 
+          WONT BE USED IN ACTUAL TEST - then we'll go into
+          css before user arrives and decide which articles have
+          hlighter and which don't
+        */
         function ToggleVisbility() 
         {
           var hlighters = document.getElementsByClassName("hlighter");
@@ -193,7 +207,6 @@
           position:absolute;
           width:100%;
           z-index: -1;
-          visibility: hidden;
         }
         /* for box shadow: https://stackoverflow.com/questions/45143916/dim-entire-screen-except-a-fixed-area */
         /* this box shadow is doing something to the opacity of the top highlighter div, but no issue yet */
@@ -229,6 +242,10 @@
         }
         #vis-button {
           margin-top: 10px;
+        }
+        /* THIS IS WHERE YOU WILL TOGGLE HLIGHTER FROM */
+        #hlighterTop, #hlighterCenter, #hlighterBottom {
+          visibility: visible;
         }
       </style>
 		
