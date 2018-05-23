@@ -30,6 +30,10 @@ namespace Interaction_Interactors_101
     {
         public class Laputa : WebSocketBehavior
         {
+            FixationDataStream fixationDataStream;
+            Host host;
+
+
             protected override void OnMessage(MessageEventArgs e)
             {
                 string path = @"/Users/Kathryn Faolin/Documents/thesis/data.txt";
@@ -47,10 +51,10 @@ namespace Interaction_Interactors_101
                 // Everything starts with initializing Host, which manages the connection to the 
                 // Tobii Engine and provides all the Tobii Core SDK functionality.
                 // NOTE: Make sure that Tobii.EyeX.exe is running
-                var host = new Host();
+                host = new Host();
              
                 // Initialize Fixation data stream.
-                var fixationDataStream = host.Streams.CreateFixationDataStream();
+                fixationDataStream = host.Streams.CreateFixationDataStream();
 
                 // Because timestamp of fixation events is relative to the previous ones
                 // only, we will store them in this variable.
@@ -95,6 +99,7 @@ namespace Interaction_Interactors_101
             protected override void OnClose(CloseEventArgs e)
             {
                 base.OnClose(e);
+                fixationDataStream.Next -= null;
             }
         }
 
