@@ -2,18 +2,17 @@
 <html>
    <head>
 	   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
-      <script type="text/javascript">    
-        // array of arrays with last 10 x,y positions of gaze tracker
-        var coords_q = [[-1,-1],[-1,-1],[-1,-1],[-1,-1],[-1,-1],[-1,-1],[-1,-1],[-1,-1],[-1,-1],[-1,-1]];
+      <script type="text/javascript"> 
 
-        var data = [];    // array of [line_num, timestamp] objects
+        // OPEN WEBSOCKET UPON PAGE LOAD
+        $(document).ready(function() { 
+          // array of arrays with last 10 x,y positions of gaze tracker
+          var coords_q = [[-1,-1],[-1,-1],[-1,-1],[-1,-1],[-1,-1],[-1,-1],[-1,-1],[-1,-1],[-1,-1],[-1,-1]];
 
-        var INDEX_URL = "file:///C:/Users/Kathryn Faolin/Documents/thesis/client/index.html";
+          var data = [];    // array of [line_num, timestamp] objects
 
+          var INDEX_URL = "file:///C:/Users/Kathryn Faolin/Documents/thesis/client/index.html";
 
-        /* Main function that runs when you click on websocket button */
-        function WebSocketTest()
-        {
           if ("WebSocket" in window)
 
           {
@@ -21,25 +20,6 @@
              
             // Let us open a web socket
             var ws = new WebSocket("ws://localhost:9998/Laputa");
-
-            var buttonStop = document.getElementById("stop-button");
-            buttonStop.onclick = function() {
-              // Close the connection, if open.
-              if (ws.readyState === WebSocket.OPEN) {
-
-                // TODO: conceptual thing - why was doc.getElembyid not giving
-                // correct result unless you toggled?
-                var infoToSend = {
-                  article: 'pandas',
-                  hlight: $("#hlighterCenter").css("visibility"),
-                  data: data
-                };
-
-                ws.send(JSON.stringify(infoToSend));
-                ws.close();
-                window.location.href = INDEX_URL; // causes log to dissapear
-              }
-            }
 
             ws.onopen = function()
             {
@@ -158,36 +138,33 @@
             };
 
             window.onbeforeunload = function(event) {
-              ws.close();
-            };
-          }
+              // Close the connection, if open.
+              if (ws.readyState === WebSocket.OPEN) {
+
+                // TODO: conceptual thing - why was doc.getElembyid not giving
+                // correct result unless you toggled?
+                var infoToSend = {
+                  article: 'pandas',
+                  user: '01',
+                  hlight: $("#hlighterCenter").css("visibility"),
+                  data: data
+                };
+
+                ws.send(JSON.stringify(infoToSend));
+                ws.close();
+              };
+            }
           
+          }
           else
           {
-             // The browser doesn't support WebSocket
-             alert("WebSocket NOT supported by your Browser!");
+            // The browser doesn't support WebSocket
+            alert("WebSocket NOT supported by your Browser!");
           }
-        }
 
-        /* 
-          WONT BE USED IN ACTUAL TEST - then we'll go into
-          css before user arrives and decide which articles have
-          hlighter and which don't
-        */
-        function ToggleVisbility() 
-        {
-          var hlighters = document.getElementsByClassName("hlighter");
-          for (var i = 0, ii = hlighters.length; i < ii; i++) {
-            var curr_highlighter = hlighters[i];
-            if (curr_highlighter.style.visibility === 'hidden') {
-              curr_highlighter.style.visibility = 'visible';
-            } else if (curr_highlighter.style.visibility === 'visible'){
-              curr_highlighter.style.visibility = 'hidden';
-            } else {
-              curr_highlighter.style.visibility = 'visible';
-            }
-          };
-        }
+
+        });
+
       </script>
 
 
@@ -226,22 +203,8 @@
           padding-left: 10px;
         }
         #sse {
+          width: 60px;
           display: flex;
-          flex-flow: column nowrap;
-          justify-content: flex-start;
-          padding-right: 10px;
-        }
-        #start-button {
-          background-color: green;
-          color: white;
-        }
-        #stop-button {
-          margin-top: 10px;
-          background-color: red;
-          color: white;
-        }
-        #vis-button {
-          margin-top: 10px;
         }
         /* THIS IS WHERE YOU WILL TOGGLE HLIGHTER FROM */
         #hlighterTop, #hlighterCenter, #hlighterBottom {
@@ -252,9 +215,6 @@
    </head>
    <body>
       <div id="sse">
-        <button id="start-button" onclick="WebSocketTest()">RECORD</button>
-        <button id="stop-button">DONE</button>
-        <button id="vis-button" onclick="ToggleVisbility()">TOGGLE</button>
       </div>
       <div id="container">
         <div class="hlighter hlighterOuter" id="hlighterTop"></div>
